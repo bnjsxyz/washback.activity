@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#5b1022">
+  <meta name="color-scheme" content="light">
+  <title>Washback Check | Language Assessment</title>
+  <style>
+    :root {
+      --maroon: #5b1022;
+      --maroon-2: #7a1732;
+      --gold: #f2b632;
+      --gold-soft: #fff3cc;
+      --ink: #241a1d;
+      --muted: #665c60;
+      --paper: #fffdf8;
+      --surface: #ffffff;
+      --line: #dfd4d7;
+      --positive: #147a55;
+      --positive-soft: #e7f7f0;
+      --negative: #b33a3a;
+      --negative-soft: #fff0ee;
+      --focus: #1769aa;
+      --shadow: 0 16px 45px rgba(61, 13, 27, .14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 95% 0%, rgba(242,182,50,.23), transparent 28rem),
+        linear-gradient(180deg, #fbf4e7 0, var(--paper) 38rem);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      -webkit-text-size-adjust: 100%;
+    }
+    button, input { font: inherit; }
+    button { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible { outline: 4px solid rgba(23,105,170,.28); outline-offset: 3px; }
+    .skip { position: fixed; left: 1rem; top: -5rem; z-index: 99; background: #fff; color: var(--maroon); padding: .7rem 1rem; border-radius: .6rem; }
+    .skip:focus { top: 1rem; }
+
+    header {
+      color: #fff;
+      background: linear-gradient(128deg, #410817, var(--maroon) 62%, #73152f);
+      border-bottom: 7px solid var(--gold);
+      padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left));
+    }
+    .topbar { max-width: 1080px; margin: auto; display: flex; gap: 1rem; align-items: center; justify-content: space-between; }
+    .brand { display: flex; gap: .8rem; align-items: center; min-width: 0; }
+    .mark { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; color: var(--maroon); background: var(--gold); font-weight: 900; letter-spacing: -.08em; box-shadow: inset 0 0 0 4px rgba(255,255,255,.36); }
+    .brand strong { display: block; font-size: clamp(.98rem, 3.4vw, 1.2rem); }
+    .brand span { display: block; color: #f8df9d; font-size: .8rem; }
+    .icon-btn { min-height: 44px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; background: rgba(255,255,255,.11); color: #fff; padding: .55rem .85rem; cursor: pointer; }
+
+    .progress-shell { max-width: 1080px; margin: .8rem auto 0; display: none; align-items: center; gap: .75rem; font-size: .82rem; }
+    .progress-track { height: 9px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.18); flex: 1; }
+    .progress-fill { width: 0; height: 100%; background: var(--gold); transition: width .3s ease; }
+
+    main { width: min(920px, calc(100% - 2rem)); margin: clamp(1.2rem, 4vw, 3rem) auto; padding-bottom: 4rem; }
+    .panel { background: rgba(255,255,255,.95); border: 1px solid rgba(91,16,34,.13); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .panel-body { padding: clamp(1.25rem, 5vw, 3.2rem); }
+    .eyebrow { margin: 0 0 .5rem; color: var(--maroon-2); font-weight: 850; letter-spacing: .12em; text-transform: uppercase; font-size: .76rem; }
+    h1, h2, h3 { line-height: 1.15; margin-top: 0; }
+    h1 { max-width: 720px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 7vw, 4.15rem); letter-spacing: -.045em; margin-bottom: 1rem; color: var(--maroon); }
+    h2 { color: var(--maroon); font-size: clamp(1.45rem, 4vw, 2.15rem); }
+    .lede { color: var(--muted); font-size: clamp(1rem, 2.5vw, 1.2rem); max-width: 720px; }
+    .concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.7rem 0; }
+    .concept { border: 1px solid var(--line); border-top: 5px solid; border-radius: 16px; padding: 1rem; }
+    .concept.positive { border-top-color: var(--positive); background: var(--positive-soft); }
+    .concept.negative { border-top-color: var(--negative); background: var(--negative-soft); }
+    .concept h3 { margin-bottom: .35rem; font-size: 1rem; }
+    .concept p { margin: 0; color: #4f4548; font-size: .94rem; }
+    .rule { border-left: 5px solid var(--gold); background: var(--gold-soft); padding: .9rem 1rem; border-radius: 0 12px 12px 0; }
+    .rule strong { color: var(--maroon); }
+
+    .form-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: .9rem; margin-top: 1.7rem; }
+    label { font-weight: 750; color: #46383d; }
+    input[type="text"] { width: 100%; margin-top: .35rem; min-height: 48px; border: 1.5px solid var(--line); border-radius: 11px; padding: .7rem .8rem; color: var(--ink); background: #fff; }
+    .primary, .secondary { min-height: 48px; border-radius: 12px; padding: .75rem 1.15rem; font-weight: 850; cursor: pointer; border: 0; }
+    .primary { background: var(--maroon); color: #fff; box-shadow: 0 5px 0 #350512; }
+    .primary:hover { background: var(--maroon-2); transform: translateY(-1px); }
+    .primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #350512; }
+    .primary:disabled { opacity: .52; cursor: not-allowed; transform: none; }
+    .secondary { background: #fff; color: var(--maroon); border: 1.5px solid var(--maroon); }
+    .start-btn { margin-top: 1.25rem; width: 100%; }
+    .tiny { color: var(--muted); font-size: .82rem; }
+
+    #activity, #results { display: none; }
+    .question-head { display: flex; gap: 1rem; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .item-nav { display: flex; flex-wrap: wrap; gap: .45rem; padding: .75rem; margin: 0 0 1.25rem; border-radius: 14px; background: #f7f0e5; border: 1px solid #eadfce; }
+    .item-nav button { width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #bdaeb2; background: #fff; color: var(--maroon); font-weight: 900; cursor: pointer; }
+    .item-nav button.current { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+    .item-nav button.done:not(.current) { background: var(--positive-soft); border-color: var(--positive); color: #0c5b3e; }
+    .item-nav-key { width: 100%; margin: .15rem 0 0; color: var(--muted); font-size: .76rem; }
+    .number { color: var(--maroon-2); font-weight: 900; font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; }
+    .points { white-space: nowrap; border-radius: 99px; background: var(--gold-soft); color: #6e4900; padding: .35rem .7rem; font-weight: 800; font-size: .8rem; }
+    .scenario-label { margin: 0 0 .45rem; color: var(--muted); font-weight: 800; font-size: .83rem; text-transform: uppercase; letter-spacing: .07em; }
+    .scenario { border-radius: 16px; padding: clamp(1rem, 3vw, 1.45rem); margin-bottom: 1.5rem; background: #faf6ef; border: 1px solid #eadfce; font-size: clamp(1rem, 2.6vw, 1.16rem); }
+    fieldset { padding: 0; border: 0; margin: 0; }
+    legend { font-weight: 900; margin-bottom: .8rem; color: var(--maroon); }
+    .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+    .choice { position: relative; display: flex; align-items: center; gap: .75rem; min-height: 62px; padding: .85rem 1rem; border: 2px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
+    .choice:hover { border-color: #ad8791; transform: translateY(-1px); }
+    .choice input { width: 1.2rem; height: 1.2rem; accent-color: var(--maroon); flex: 0 0 auto; }
+    .choice:has(input:checked) { border-color: var(--maroon); background: #fff7f2; box-shadow: 0 0 0 2px rgba(91,16,34,.07); }
+    .choice.correct { border-color: var(--positive); background: var(--positive-soft); }
+    .choice.incorrect { border-color: var(--negative); background: var(--negative-soft); }
+    .choice.locked { cursor: default; transform: none; }
+    .choice.locked input { pointer-events: none; }
+    .choice-text strong { display: block; }
+    .choice-text small { display: block; color: var(--muted); margin-top: .1rem; }
+    .actions { display: flex; justify-content: flex-end; gap: .8rem; margin-top: 1.3rem; }
+
+    .feedback { margin-top: 1.2rem; padding: 1rem; border-radius: 14px; display: none; }
+    .feedback.show { display: block; }
+    .feedback.good { background: var(--positive-soft); border: 1px solid #8bcbb4; }
+    .feedback.try { background: var(--negative-soft); border: 1px solid #e5aaa4; }
+    .feedback h3 { margin-bottom: .35rem; font-size: 1rem; }
+    .feedback p { margin: .25rem 0 0; }
+    .improve-wrap { display: none; margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px dashed #cbbabd; }
+    .improve-wrap.show { display: block; }
+    .improve-wrap .choices { grid-template-columns: 1fr; }
+
+    .score-ring { width: 156px; height: 156px; display: grid; place-items: center; margin: 0 auto 1.3rem; border-radius: 50%; background: conic-gradient(var(--gold) var(--score-angle), #eee2d2 0); position: relative; }
+    .score-ring::after { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: #fff; }
+    .score-ring span { position: relative; z-index: 1; text-align: center; color: var(--maroon); font-size: 2rem; font-weight: 950; line-height: 1; }
+    .score-ring small { display: block; font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+    .result-title { text-align: center; }
+    .result-summary { max-width: 600px; margin: 0 auto 1.5rem; text-align: center; color: var(--muted); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin: 1.5rem 0; }
+    .stat { padding: .9rem; text-align: center; background: #faf6ef; border: 1px solid #eadfce; border-radius: 13px; }
+    .stat strong { display: block; color: var(--maroon); font-size: 1.35rem; }
+    .result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+    details { margin-top: 1.4rem; border: 1px solid var(--line); border-radius: 14px; padding: .9rem 1rem; }
+    summary { cursor: pointer; font-weight: 850; color: var(--maroon); }
+    .review-list { padding-left: 1.2rem; }
+    .review-list li { margin: .75rem 0; }
+    .review-list .ok { color: var(--positive); font-weight: 800; }
+    .review-list .miss { color: var(--negative); font-weight: 800; }
+    footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 1rem; }
+    .noscript { margin: 1rem auto; max-width: 760px; background: #fff0ee; border: 2px solid var(--negative); border-radius: 12px; padding: 1rem; }
+
+    @media (max-width: 650px) {
+      main { width: min(100% - 1rem, 920px); margin-top: .75rem; }
+      .panel-body { padding: 1.15rem; }
+      .concept-grid, .form-grid, .choices { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .brand span { display: none; }
+      .icon-btn { font-size: .78rem; }
+      .question-head { align-items: center; }
+      .actions { flex-direction: column-reverse; }
+      .actions button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+    @media print {
+      body { background: #fff; }
+      header, footer, #intro, #activity, .result-actions { display: none !important; }
+      #results { display: block !important; }
+      .panel { box-shadow: none; border: 0; }
+      main { width: 100%; margin: 0; }
+      details { display: block; }
+      details > summary { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to activity</a>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">W↔</div>
+        <div><strong>Washback Check</strong><span>Language Assessment • Knowledge Check</span></div>
+      </div>
+      <button class="icon-btn" id="resetTop" type="button" title="Erase saved progress">Reset</button>
+    </div>
+    <div class="progress-shell" id="progressShell" aria-label="Activity progress">
+      <span id="progressText">1 of 12</span>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </header>
+
+  <noscript><div class="noscript"><strong>JavaScript is required.</strong> Please enable it in your browser to use this interactive activity.</div></noscript>
+
+  <main id="main">
+    <section class="panel" id="intro" aria-labelledby="introTitle">
+      <div class="panel-body">
+        <p class="eyebrow">Assessment effects in action</p>
+        <h1 id="introTitle">Which way does the test push learning?</h1>
+        <p class="lede">Washback (also called backwash) is the influence a test has on teaching and learning. Your task is to judge each classroom situation—and repair the harmful ones.</p>
+
+        <div class="concept-grid">
+          <article class="concept positive">
+            <h3>✓ Positive washback</h3>
+            <p>The test encourages useful learning, authentic language use, sound teaching, and alignment with course goals.</p>
+          </article>
+          <article class="concept negative">
+            <h3>! Negative washback</h3>
+            <p>The test narrows, distorts, or harms learning—for example, by rewarding memorization while neglecting the intended skill.</p>
+          </article>
+        </div>
+
+        <p class="rule"><strong>Decision rule:</strong> Do not judge a test only by its format. Ask what teachers and learners are likely to do because of it—and whether that behavior supports meaningful learning.</p>
+
+        <div class="form-grid">
+          <label>Your name <input id="studentName" type="text" maxlength="60" autocomplete="name" placeholder="e.g., Ana Reyes"></label>
+          <label>Section <input id="studentSection" type="text" maxlength="40" autocomplete="off" placeholder="e.g., MAELT 1"></label>
+        </div>
+        <button class="primary start-btn" id="startBtn" type="button">Start the 9-item challenge</button>
+        <p class="tiny">Your progress is stored only in this browser. No response is transmitted.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="activity" aria-labelledby="questionTitle">
+      <div class="panel-body">
+        <div class="question-head">
+          <div><div class="number" id="questionNumber">Item 1 of 9</div><h2 id="questionTitle" tabindex="-1">Classify the washback</h2></div>
+          <div class="points" id="liveScore">0 points</div>
+        </div>
+        <nav class="item-nav" id="itemNav" aria-label="Activity items"></nav>
+        <p class="scenario-label">Classroom or assessment situation</p>
+        <div class="scenario" id="scenarioText"></div>
+
+        <fieldset id="classifyField">
+          <legend>What kind of washback is most likely?</legend>
+          <div class="choices" id="classifyChoices">
+            <label class="choice"><input type="radio" name="classification" value="positive"><span class="choice-text"><strong>Positive washback</strong><small>It supports worthwhile learning.</small></span></label>
+            <label class="choice"><input type="radio" name="classification" value="negative"><span class="choice-text"><strong>Negative washback</strong><small>It distorts or limits learning.</small></span></label>
+          </div>
+        </fieldset>
+
+        <div class="feedback" id="classFeedback" role="status" aria-live="polite"></div>
+
+        <fieldset class="improve-wrap" id="improveWrap">
+          <legend>Repair the situation: choose the best improvement.</legend>
+          <div class="choices" id="improveChoices"></div>
+          <div class="feedback" id="improveFeedback" role="status" aria-live="polite"></div>
+        </fieldset>
+
+        <div class="actions">
+          <button class="secondary" id="prevBtn" type="button">Previous</button>
+          <button class="secondary" id="checkBtn" type="button" disabled>Check answer</button>
+          <button class="primary" id="nextBtn" type="button" style="display:none">Next situation</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="results" aria-labelledby="resultTitle">
+      <div class="panel-body">
+        <div class="score-ring" id="scoreRing" style="--score-angle:0deg"><span id="scorePercent">0%<small>overall</small></span></div>
+        <h2 class="result-title" id="resultTitle">Knowledge check complete</h2>
+        <p class="result-summary" id="resultSummary"></p>
+        <div class="stats">
+          <div class="stat"><strong id="classStat">0/7</strong>Classification</div>
+          <div class="stat"><strong id="repairStat">0/3</strong>Repairs</div>
+          <div class="stat"><strong id="appStat">0/2</strong>Application</div>
+          <div class="stat"><strong id="totalStat">0/12</strong>Total</div>
+        </div>
+        <div class="result-actions">
+          <button class="primary" id="retryBtn" type="button">Try again</button>
+          <button class="secondary" id="printBtn" type="button">Print / Save PDF</button>
+        </div>
+        <details open>
+          <summary>Review your responses</summary>
+          <ol class="review-list" id="reviewList"></ol>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>Designed for classroom knowledge checking • Works online or offline</footer>
+
+  <script>
+  (() => {
+    'use strict';
+    const questions = [
+      {
+        type: 'classification',
+        scenario: 'A speaking course assesses students through a realistic paired problem-solving task. Because the scoring rubric values interaction, clarification, and intelligibility, lessons regularly include purposeful conversations and peer feedback.',
+        answer: 'positive',
+        why: 'The assessment represents the target skill and encourages meaningful communicative practice.'
+      },
+      {
+        type: 'classification',
+        scenario: 'A course aims to develop academic writing, but the final examination only asks students to identify grammar errors in isolated sentences. Teachers stop assigning essays and spend most lessons drilling error-recognition items.',
+        answer: 'negative',
+        why: 'The test underrepresents academic writing and narrows instruction to isolated grammar recognition.',
+        options: [
+          'Increase the number of isolated error-recognition items so learners encounter more grammar rules.',
+          'Add scored planning, drafting, revising, and source-based writing tasks aligned with the course outcomes.',
+          'Give students a longer list of grammar rules to memorize before every lesson.'
+        ], correct: 1
+      },
+      {
+        type: 'classification',
+        scenario: 'Before an oral proficiency assessment, students rehearse asking follow-up questions, repairing misunderstandings, and expressing ideas clearly in unfamiliar situations—not memorizing one fixed dialogue.',
+        answer: 'positive',
+        why: 'Preparation develops transferable communication strategies instead of rehearsing a single test script.'
+      },
+      {
+        type: 'classification',
+        scenario: 'A high-stakes reading test uses only multiple-choice questions about tiny factual details. To raise scores, the class abandons discussion of main ideas, inference, evaluation, and extended reading.',
+        answer: 'negative',
+        why: 'Test preparation crowds out important reading processes and reduces the construct to detail hunting.',
+        options: [
+          'Remove longer texts so every item can be answered in seconds.',
+          'Teach students to scan even faster for names and numbers only.',
+          'Broaden the assessment to sample main ideas, inference, evaluation, and authentic reading responses.'
+        ], correct: 2
+      },
+      {
+        type: 'classification',
+        scenario: 'Weekly low-stakes listening checks use short, authentic announcements. Results show which listening strategies need attention, so the teacher reteaches those strategies and students track their improvement.',
+        answer: 'positive',
+        why: 'Assessment evidence guides feedback and targeted learning without dominating the course.'
+      },
+      {
+        type: 'classification',
+        scenario: 'Students know that spelling receives most of the points in a presentation rubric. They therefore spend their preparation time perfecting slide text and avoid spontaneous speaking, audience interaction, and questions.',
+        answer: 'negative',
+        why: 'The weighting signals the wrong priority and discourages the oral performance the task should elicit.',
+        options: [
+          'Reweight the rubric toward oral delivery, meaning, interaction, and audience awareness; keep language accuracy proportionate.',
+          'Require more text on every slide so spelling can be checked more often.',
+          'Ban audience questions to make presentations easier to score.'
+        ], correct: 0
+      },
+      {
+        type: 'classification',
+        scenario: 'A vocabulary quiz includes words students must use later in a community interview. Lessons connect meaning, collocation, pronunciation, and appropriate use, and students apply the words in the interview.',
+        answer: 'positive',
+        why: 'The quiz supports learning that transfers to an authentic communicative task.'
+      },
+      {
+        type: 'application',
+        scenario: 'APPLICATION CHALLENGE: You are redesigning the final assessment for a course whose main outcome is interactive speaking. Which assessment plan is most likely to create positive washback?',
+        options: [
+          'A 100-item written test on definitions of communication strategies.',
+          'A memorized speech scored mainly for the number of advanced words used.',
+          'A paired problem-solving task scored for meaning, interaction, intelligibility, and appropriate strategy use.',
+          'A grammar-editing worksheet completed under strict time pressure.'
+        ], correct: 2,
+        why: 'The paired task directly elicits the target ability and gives teachers and learners a reason to practice meaningful interaction.'
+      },
+      {
+        type: 'application',
+        scenario: 'APPLICATION CHALLENGE: A reading examination has caused teachers to teach only test-taking tricks. As assessment coordinator, which response best addresses the negative washback while protecting the intended reading construct?',
+        options: [
+          'Keep the examination unchanged and require additional drill sessions after class.',
+          'Audit the construct, broaden the test specifications and task sample, align scoring with the reading outcomes, and monitor classroom effects after implementation.',
+          'Remove reading assessment entirely and grade students only on attendance.',
+          'Publish the exact passages in advance so students can memorize the answers.'
+        ], correct: 1,
+        why: 'A principled redesign starts from the intended construct, improves alignment and sampling, and checks whether the new assessment produces the desired classroom effects.'
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const els = {
+      intro: $('intro'), activity: $('activity'), results: $('results'), progressShell: $('progressShell'),
+      progressText: $('progressText'), progressFill: $('progressFill'), studentName: $('studentName'),
+      studentSection: $('studentSection'), startBtn: $('startBtn'), resetTop: $('resetTop'),
+      qNum: $('questionNumber'), qTitle: $('questionTitle'), scenario: $('scenarioText'), liveScore: $('liveScore'),
+      itemNav: $('itemNav'), classifyField: $('classifyField'), classChoices: $('classifyChoices'),
+      classFeedback: $('classFeedback'), improveWrap: $('improveWrap'), improveChoices: $('improveChoices'),
+      improveFeedback: $('improveFeedback'), prevBtn: $('prevBtn'), checkBtn: $('checkBtn'),
+      nextBtn: $('nextBtn'), retryBtn: $('retryBtn'), printBtn: $('printBtn'), reviewList: $('reviewList')
+    };
+    const blank = () => ({ index: 0, responses: [], name: '', section: '', finished: false });
+    let state = blank();
+    const storageKey = 'washback-check-v2';
+    const classTotal = questions.filter(q => q.type === 'classification').length;
+    const repairTotal = questions.filter(q => q.type === 'classification' && q.answer === 'negative').length;
+    const appTotal = questions.filter(q => q.type === 'application').length;
+    const totalPoints = classTotal + repairTotal + appTotal;
+
+    function save() { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (_) {} }
+    function clearSaved() { try { localStorage.removeItem(storageKey); } catch (_) {} }
+    function escapeHTML(value) { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function show(section) {
+      [els.intro, els.activity, els.results].forEach(el => el.style.display = 'none');
+      section.style.display = 'block';
+      els.progressShell.style.display = section === els.activity ? 'flex' : 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function responseFor(index) {
+      if (!state.responses[index]) {
+        state.responses[index] = questions[index].type === 'application'
+          ? { application: null, appCorrect: null }
+          : { classification: null, classCorrect: null, repair: null, repairCorrect: null };
+      }
+      return state.responses[index];
+    }
+    function isComplete(index) {
+      const q = questions[index], r = state.responses[index];
+      if (!r) return false;
+      if (q.type === 'application') return r.application !== null;
+      return r.classification !== null && (q.answer !== 'negative' || r.repair !== null);
+    }
+    function scores() {
+      let classification = 0, repair = 0, application = 0;
+      state.responses.forEach(r => {
+        if (!r) return;
+        if (r.classCorrect) classification++;
+        if (r.repairCorrect) repair++;
+        if (r.appCorrect) application++;
+      });
+      return { classification, repair, application, total: classification + repair + application };
+    }
+    function selected(name) { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; }
+    function lockGroup(container) { container.querySelectorAll('input').forEach(i => i.disabled = true); container.querySelectorAll('.choice').forEach(l => l.classList.add('locked')); }
+    function markChoices(container, chosen, correct) {
+      [...container.querySelectorAll('label')].forEach(label => {
+        const value = label.querySelector('input').value;
+        if (String(value) === String(correct)) label.classList.add('correct');
+        else if (String(value) === String(chosen)) label.classList.add('incorrect');
+      });
+    }
+    function feedback(el, good, title, body) {
+      el.className = 'feedback show ' + (good ? 'good' : 'try');
+      el.innerHTML = '<h3>' + (good ? '✓ ' : '→ ') + escapeHTML(title) + '</h3><p>' + escapeHTML(body) + '</p>';
+    }
+    function updateProgress() {
+      const complete = questions.filter((_, i) => isComplete(i)).length;
+      const score = scores().total;
+      els.progressText.textContent = complete + ' of ' + questions.length + ' completed';
+      els.progressFill.style.width = ((complete / questions.length) * 100) + '%';
+      els.liveScore.textContent = score + '/' + totalPoints + ' points';
+    }
+    function renderNav() {
+      els.itemNav.innerHTML = questions.map((q, i) => {
+        const classes = (i === state.index ? 'current ' : '') + (isComplete(i) ? 'done' : '');
+        const type = q.type === 'application' ? 'application item' : 'classification item';
+        return '<button type="button" class="' + classes.trim() + '" data-index="' + i + '" aria-label="Open ' + type + ' ' + (i + 1) + '"' + (i === state.index ? ' aria-current="step"' : '') + '>' + (i + 1) + '</button>';
+      }).join('') + '<p class="item-nav-key">Select any number to revisit an item. Green numbers are complete.</p>';
+    }
+    function choicesHTML(options, name) {
+      return options.map((option, i) => '<label class="choice"><input type="radio" name="' + name + '" value="' + i + '"><span class="choice-text">' + escapeHTML(option) + '</span></label>').join('');
+    }
+    function renderRepair(q, r) {
+      els.improveChoices.innerHTML = choicesHTML(q.options, 'repair');
+      els.improveWrap.classList.add('show');
+      if (r.repair !== null) {
+        const input = els.improveChoices.querySelector('input[value="' + r.repair + '"]');
+        if (input) input.checked = true;
+        lockGroup(els.improveChoices);
+        markChoices(els.improveChoices, r.repair, q.correct);
+        feedback(els.improveFeedback, r.repairCorrect, r.repairCorrect ? 'Effective repair' : 'A stronger repair is highlighted', q.options[q.correct]);
+      }
+    }
+    function renderQuestion() {
+      const q = questions[state.index], r = responseFor(state.index);
+      const applicationNumber = state.index - classTotal + 1;
+      els.qNum.textContent = q.type === 'application'
+        ? 'Application ' + applicationNumber + ' of ' + appTotal + ' • Item ' + (state.index + 1) + ' of ' + questions.length
+        : 'Classification ' + (state.index + 1) + ' of ' + classTotal + ' • Item ' + (state.index + 1) + ' of ' + questions.length;
+      els.qTitle.textContent = q.type === 'application' ? 'Apply the washback principle' : 'Classify the washback';
+      els.scenario.textContent = q.scenario;
+      els.classFeedback.className = 'feedback';
+      els.classFeedback.innerHTML = '';
+      els.improveWrap.className = 'improve-wrap';
+      els.improveChoices.innerHTML = '';
+      els.improveFeedback.className = 'feedback';
+      els.checkBtn.style.display = 'inline-block';
+      els.checkBtn.disabled = true;
+      els.prevBtn.disabled = state.index === 0;
+      els.nextBtn.style.display = 'inline-block';
+      els.nextBtn.textContent = state.index === questions.length - 1 ? 'View results' : 'Next item';
+
+      if (q.type === 'classification') {
+        els.classifyField.querySelector('legend').textContent = 'What kind of washback is most likely?';
+        els.classChoices.innerHTML =
+          '<label class="choice"><input type="radio" name="primary" value="positive"><span class="choice-text"><strong>Positive washback</strong><small>It supports worthwhile learning.</small></span></label>' +
+          '<label class="choice"><input type="radio" name="primary" value="negative"><span class="choice-text"><strong>Negative washback</strong><small>It distorts or limits learning.</small></span></label>';
+        els.checkBtn.textContent = 'Check classification';
+        if (r.classification !== null) {
+          const input = els.classChoices.querySelector('input[value="' + r.classification + '"]');
+          if (input) input.checked = true;
+          lockGroup(els.classChoices);
+          markChoices(els.classChoices, r.classification, q.answer);
+          feedback(els.classFeedback, r.classCorrect, r.classCorrect ? 'Correct classification' : 'Look again: ' + q.answer + ' washback', q.why);
+          if (q.answer === 'negative') {
+            renderRepair(q, r);
+            if (r.repair === null) els.checkBtn.textContent = 'Check improvement';
+            else els.checkBtn.style.display = 'none';
+          } else {
+            els.checkBtn.style.display = 'none';
+          }
+        }
+      } else {
+        els.classifyField.querySelector('legend').textContent = 'Choose the best professional response.';
+        els.classChoices.innerHTML = choicesHTML(q.options, 'primary');
+        els.checkBtn.textContent = 'Check application';
+        if (r.application !== null) {
+          const input = els.classChoices.querySelector('input[value="' + r.application + '"]');
+          if (input) input.checked = true;
+          lockGroup(els.classChoices);
+          markChoices(els.classChoices, r.application, q.correct);
+          feedback(els.classFeedback, r.appCorrect, r.appCorrect ? 'Sound application' : 'Review the highlighted response', q.why);
+          els.checkBtn.style.display = 'none';
+        }
+      }
+      renderNav(); updateProgress(); save();
+      els.qTitle.focus({ preventScroll: true });
+    }
+    function checkPrimary() {
+      const value = selected('primary');
+      if (value === null) return;
+      const q = questions[state.index], r = responseFor(state.index);
+      if (q.type === 'classification') {
+        r.classification = value;
+        r.classCorrect = value === q.answer;
+      } else {
+        r.application = Number(value);
+        r.appCorrect = r.application === q.correct;
+      }
+      renderQuestion();
+      if (q.type === 'classification' && q.answer === 'negative') els.improveWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function checkRepair() {
+      const value = selected('repair');
+      if (value === null) return;
+      const q = questions[state.index], r = responseFor(state.index);
+      r.repair = Number(value);
+      r.repairCorrect = r.repair === q.correct;
+      renderQuestion();
+    }
+    function allComplete() { return questions.every((_, i) => isComplete(i)); }
+    function finish() {
+      if (!allComplete()) {
+        const firstMissing = questions.findIndex((_, i) => !isComplete(i));
+        alert('Please complete all items before viewing the results. You will be taken to the first unfinished item.');
+        state.index = firstMissing; renderQuestion(); return;
+      }
+      show(els.results);
+      const score = scores();
+      const pct = Math.round(score.total / totalPoints * 100);
+      $('scorePercent').innerHTML = pct + '%<small>overall</small>';
+      $('scoreRing').style.setProperty('--score-angle', (pct * 3.6) + 'deg');
+      $('classStat').textContent = score.classification + '/' + classTotal;
+      $('repairStat').textContent = score.repair + '/' + repairTotal;
+      $('appStat').textContent = score.application + '/' + appTotal;
+      $('totalStat').textContent = score.total + '/' + totalPoints;
+      const who = state.name ? escapeHTML(state.name) : 'You';
+      const message = pct >= 85 ? 'show a strong grasp of how tests shape instruction and learning.' : pct >= 65 ? 'can identify many washback effects; review the missed items to sharpen your decisions.' : 'are building the concept; focus on the behaviors a test causes, not only its format.';
+      $('resultSummary').innerHTML = '<strong>' + who + '</strong>, you ' + message + (state.section ? ' <span class="tiny">Section: ' + escapeHTML(state.section) + '</span>' : '');
+      els.reviewList.innerHTML = questions.map((q, i) => {
+        const r = state.responses[i];
+        if (q.type === 'application') {
+          return '<li><strong>Application ' + (i - classTotal + 1) + ':</strong> <span class="' + (r.appCorrect ? 'ok' : 'miss') + '">' + (r.appCorrect ? 'Correct' : 'Review') + '</span> — ' + escapeHTML(q.why) + '</li>';
+        }
+        const repair = q.answer === 'negative' ? ' Repair: <span class="' + (r.repairCorrect ? 'ok' : 'miss') + '">' + (r.repairCorrect ? 'correct' : 'review needed') + '</span>.' : '';
+        return '<li><span class="' + (r.classCorrect ? 'ok' : 'miss') + '">' + (r.classCorrect ? 'Correct' : 'Review') + '</span> — ' + escapeHTML(q.why) + repair + '</li>';
+      }).join('');
+      state.finished = true; save();
+    }
+    function startFresh() {
+      state = blank();
+      state.name = els.studentName.value.trim();
+      state.section = els.studentSection.value.trim();
+      show(els.activity); renderQuestion();
+    }
+    function resetAll(ask = true) {
+      if (ask && !confirm('Erase this attempt and return to the start?')) return;
+      clearSaved(); state = blank();
+      els.studentName.value = ''; els.studentSection.value = '';
+      show(els.intro);
+    }
+
+    els.startBtn.addEventListener('click', startFresh);
+    els.itemNav.addEventListener('click', event => {
+      const button = event.target.closest('button[data-index]');
+      if (!button) return;
+      state.index = Number(button.dataset.index); renderQuestion();
+    });
+    els.classChoices.addEventListener('change', () => { els.checkBtn.disabled = false; });
+    els.improveChoices.addEventListener('change', () => { els.checkBtn.disabled = false; });
+    els.checkBtn.addEventListener('click', () => {
+      const q = questions[state.index], r = responseFor(state.index);
+      if (q.type === 'classification' && r.classification !== null && q.answer === 'negative' && r.repair === null) checkRepair();
+      else checkPrimary();
+    });
+    els.prevBtn.addEventListener('click', () => { if (state.index > 0) { state.index--; renderQuestion(); } });
+    els.nextBtn.addEventListener('click', () => { if (state.index < questions.length - 1) { state.index++; renderQuestion(); } else finish(); });
+    els.retryBtn.addEventListener('click', () => { const n = state.name, s = state.section; state = blank(); state.name = n; state.section = s; show(els.activity); renderQuestion(); });
+    els.printBtn.addEventListener('click', () => window.print());
+    els.resetTop.addEventListener('click', () => resetAll(true));
+
+    try {
+      const prior = JSON.parse(localStorage.getItem(storageKey));
+      if (prior && Array.isArray(prior.responses) && confirm('A saved attempt was found. Continue it?')) {
+        state = prior;
+        if (state.finished) finish(); else { show(els.activity); renderQuestion(); }
+      } else if (prior) clearSaved();
+    } catch (_) { clearSaved(); }
+  })();
+  </script>
+</body>
+</html>
